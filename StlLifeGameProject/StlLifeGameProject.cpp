@@ -5,5 +5,6 @@ int main()
 {
     Life life;
     
-    life.SetColony();
+    if (life.SetColony())
+        life.Play();
 }

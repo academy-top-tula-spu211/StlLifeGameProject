@@ -2,6 +2,7 @@
 #include "Console.h"
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 enum class CellState
 {
@@ -29,6 +30,8 @@ public:
 	int Row() const { return row; }
 	int Column() const { return column; }
 
+	int& Neighbors() { return neighbors; }
+
 	CellState& State() { return state; }
 
 	friend bool operator==(Cell c1, Cell c2);
@@ -46,8 +49,10 @@ public:
 	Life() {}
 
 	bool SetColony();
+	void Step();
+	void Play();
+
 	std::vector<Cell>::iterator IsColonyCell(int row, int column);
-	
 	void PrintColony();
 	
 };

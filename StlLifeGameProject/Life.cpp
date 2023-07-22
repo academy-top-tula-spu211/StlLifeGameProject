@@ -66,6 +66,81 @@ bool Life::SetColony()
     }
 }
 
+
+
+void Life::Step()
+{
+    for (auto cell = colony.begin(); cell != colony.end(); cell++)
+    {
+        cell->Neighbors() = 0;
+        for (auto off : offset)
+        {
+            int row = cell->Row() + off.row;
+            int column = cell->Column() + off.column;
+            if (IsColonyCell(row, column) != colony.end())
+                cell->Neighbors()++;
+        }
+        if (cell->Neighbors() < 2 || cell->Neighbors() > 3)
+            cell->State() = CellState::Dead;
+    }
+
+    int index{};
+    while (index < colony.size())
+    {
+        for (auto off : offset)
+        {
+            int row = colony[index].Row() + off.row;
+            int column = colony[index].Column() + off.column;
+            Cell cellCandidat(row, column);
+            if (IsColonyCell(row, column) == colony.end())
+            {
+                for (auto offCandidat : offset)
+                {
+                    int rowOff = row + offCandidat.row;
+                    int columnOff = column + offCandidat.column;
+                    
+                    auto cellFind = IsColonyCell(rowOff, columnOff);
+                    if (cellFind != colony.end() && cellFind->State() != CellState::Born)
+                        cellCandidat.Neighbors()++;
+                }
+                if (cellCandidat.Neighbors() == 3)
+                {
+                    cellCandidat.State() = CellState::Born;
+                    colony.push_back(cellCandidat);
+                }
+            }
+        }
+        index++;
+    }
+
+    index = 0;
+    while (index < colony.size())
+    {
+        if (colony[index].State() == CellState::Dead)
+            colony.erase(colony.begin() + index);
+        else
+            colony[index++].State() = CellState::Life;
+    }
+}
+
+void Life::Play()
+{
+    using namespace std;
+
+    Key key;
+    while (true)
+    {
+        key = console.ReadKey();
+        if (key == Key::Esc)
+            break;
+        PrintColony();
+        Step();
+        this_thread::sleep_for(200ms);
+    }
+}
+
+
+
 std::vector<Cell>::iterator Life::IsColonyCell(int row, int column)
 {
     Cell cell(row, column);
